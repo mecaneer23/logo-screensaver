@@ -18,7 +18,7 @@ class BouncingLogo:
         self._height = len(self._text)
         self._x = 0
         self._y = 0
-        self._x_vel = 1
+        self._x_vel = 2
         self._y_vel = 1
 
     def _display(self, y: int, x: int) -> None:
@@ -34,8 +34,9 @@ class BouncingLogo:
 
     def _check_collision(self) -> None:
         lines, cols = self._stdscr.getmaxyx()
+        # TODO: why do we have to subtract 1 from cols when _x_vel is 2?
         if (self._x <= 0 and self._x_vel < 0) or (
-            self._x >= cols - self._width and self._x_vel > 0
+            self._x >= cols - self._width - 1 and self._x_vel > 0
         ):
             self._x_vel *= -1
         if (self._y <= 0 and self._y_vel < 0) or (
