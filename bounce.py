@@ -36,7 +36,7 @@ class BouncingLogo:
         lines, cols = self._stdscr.getmaxyx()
         # TODO: why do we have to subtract 1 from cols when _x_vel is 2?
         if (self._x <= 0 and self._x_vel < 0) or (
-            self._x >= cols - self._width - 1 and self._x_vel > 0
+            self._x + self._width >= cols - 1 and self._x_vel > 0
         ):
             self._x_vel *= -1
         if (self._y <= 0 and self._y_vel < 0) or (
