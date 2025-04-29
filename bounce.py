@@ -52,8 +52,12 @@ class BouncingLogo:
 
 
 def main(stdscr: curses.window) -> int:
-    BouncingLogo(Path("logo.txt"), stdscr).start()
-    return 0
+    animation = BouncingLogo(Path("logo.txt"), stdscr)
+    try:
+        animation.start()
+    except KeyboardInterrupt:
+        return 0
+    return -1
 
 
 if __name__ == "__main__":
