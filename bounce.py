@@ -44,6 +44,7 @@ class BouncingLogo:
         self._x_vel = 2
         self._y_vel = 1
         self._color = curses.color_pair(Color.WHITE.as_int())
+        self._stdscr.nodelay(True)  # noqa: FBT003
 
     def _display(self, y: int, x: int) -> None:
         self._stdscr.clear()
@@ -78,6 +79,8 @@ class BouncingLogo:
             self._display(self._y, self._x)
             self._move()
             curses.napms(100)
+            if self._stdscr.getch() != -1:
+                break
 
 
 def _init() -> None:

@@ -4,4 +4,4 @@ Animate a logo bouncing around a screen
 
 ## Todo
 
-- feat: allow for quitting by pressing any key, not just ctrl+c
+- feat: add argument parsing (support for random color mode or single set color)
