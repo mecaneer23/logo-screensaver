@@ -32,6 +32,7 @@ class Color(Enum):
         """
         return [color.value for color in Color]
 
+
 class BouncingLogo:
     def __init__(self, filename: Path, stdscr: curses.window) -> None:
         self._stdscr = stdscr
