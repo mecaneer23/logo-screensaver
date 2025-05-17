@@ -5,6 +5,7 @@ Animate a logo bouncing around a screen
 
 import curses
 import sys
+from argparse import ArgumentParser, Namespace
 from enum import Enum
 from pathlib import Path
 from random import choice
@@ -84,6 +85,20 @@ class BouncingLogo:
                 break
 
 
+def parse_args() -> Namespace:
+    """Parse command line arguments."""
+    parser = ArgumentParser(
+        description="Animate a logo bouncing around a screen",
+    )
+    parser.add_argument(
+        "filename",
+        default=Path("logo.txt"),
+        nargs="?",
+        help="Path to the logo file to display",
+    )
+    return parser.parse_args()
+
+
 def _init() -> None:
     curses.use_default_colors()
     curses.curs_set(0)
@@ -104,7 +119,8 @@ def _init() -> None:
 
 def main(stdscr: curses.window) -> int:
     _init()
-    animation = BouncingLogo(Path("logo.txt"), stdscr)
+    args = parse_args()
+    animation = BouncingLogo(args.filename, stdscr)
     try:
         animation.start()
     except KeyboardInterrupt:
