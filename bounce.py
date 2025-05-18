@@ -39,7 +39,7 @@ class BouncingLogo:
         self,
         filename: Path,
         stdscr: curses.window,
-        color: Color | None = None,
+        color: str | None = None,
     ) -> None:
         self._stdscr = stdscr
         with filename.open("r") as file:
@@ -54,7 +54,7 @@ class BouncingLogo:
         self._color = Color.WHITE.as_int()
         if color is not None:
             self._random_colors = False
-            self._color = color.as_int()
+            self._color = Color[color.upper()].as_int()
         self._stdscr.nodelay(True)  # noqa: FBT003
 
     def _display(self, y: int, x: int) -> None:
@@ -105,20 +105,21 @@ def parse_args() -> Namespace:
     """Parse command line arguments."""
     parser = ArgumentParser(
         description="Animate a logo bouncing around a screen",
-        add_help=True,
     )
     parser.add_argument(
         "filename",
         default=Path("logo.txt"),
+        type=Path,
         nargs="?",
         help="Path to the logo file to display",
     )
-    color_choices = [color.name for color in Color]
+    color_choices = [color.name.lower() for color in Color]
     color_choices.append("random")
     parser.add_argument(
         "-c",
         "--color",
         choices=color_choices,
+        default="random",
         help="Color of the logo",
     )
     return parser.parse_args()
@@ -142,15 +143,15 @@ def _init() -> None:
         curses.init_pair(i, color, -1)
 
 
-def main(stdscr: curses.window) -> int:
+def main(stdscr: curses.window, args: Namespace) -> int:
     _init()
-    args = parse_args()
-    if args.color is None or args.color == "random":
-        return -1
+    color = args.color
+    if args.color == "random":
+        color = None
     animation = BouncingLogo(
         args.filename,
         stdscr,
-        color=Color[args.color],
+        color=color,
     )
     try:
         animation.start()
@@ -160,4 +161,4 @@ def main(stdscr: curses.window) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(curses.wrapper(main))
+    sys.exit(curses.wrapper(main, parse_args()))
