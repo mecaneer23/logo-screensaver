@@ -35,7 +35,12 @@ class Color(Enum):
 
 
 class BouncingLogo:
-    def __init__(self, filename: Path, stdscr: curses.window) -> None:
+    def __init__(
+        self,
+        filename: Path,
+        stdscr: curses.window,
+        color: Color | None = None,
+    ) -> None:
         self._stdscr = stdscr
         with filename.open("r") as file:
             self._text = file.read().splitlines()
@@ -45,13 +50,22 @@ class BouncingLogo:
         self._y = 0
         self._x_vel = 2
         self._y_vel = 1
-        self._color = curses.color_pair(Color.WHITE.as_int())
+        self._random_colors = True
+        self._color = Color.WHITE.as_int()
+        if color is not None:
+            self._random_colors = False
+            self._color = color.as_int()
         self._stdscr.nodelay(True)  # noqa: FBT003
 
     def _display(self, y: int, x: int) -> None:
         self._stdscr.clear()
         for row_index, line in enumerate(self._text):
-            self._stdscr.addstr(y + row_index, x, line, self._color)
+            self._stdscr.addstr(
+                y + row_index,
+                x,
+                line,
+                curses.color_pair(self._color),
+            )
         self._stdscr.refresh()
 
     def _move(self) -> None:
@@ -60,7 +74,9 @@ class BouncingLogo:
         self._y += self._y_vel
 
     def _update_color(self, color: int) -> None:
-        self._color = curses.color_pair(color)
+        if not self._random_colors:
+            return
+        self._color = color
 
     def _check_collision(self) -> None:
         lines, cols = self._stdscr.getmaxyx()
@@ -89,12 +105,21 @@ def parse_args() -> Namespace:
     """Parse command line arguments."""
     parser = ArgumentParser(
         description="Animate a logo bouncing around a screen",
+        add_help=True,
     )
     parser.add_argument(
         "filename",
         default=Path("logo.txt"),
         nargs="?",
         help="Path to the logo file to display",
+    )
+    color_choices = [color.name for color in Color]
+    color_choices.append("random")
+    parser.add_argument(
+        "-c",
+        "--color",
+        choices=color_choices,
+        help="Color of the logo",
     )
     return parser.parse_args()
 
@@ -120,7 +145,13 @@ def _init() -> None:
 def main(stdscr: curses.window) -> int:
     _init()
     args = parse_args()
-    animation = BouncingLogo(args.filename, stdscr)
+    if args.color is None or args.color == "random":
+        return -1
+    animation = BouncingLogo(
+        args.filename,
+        stdscr,
+        color=Color[args.color],
+    )
     try:
         animation.start()
     except KeyboardInterrupt:
